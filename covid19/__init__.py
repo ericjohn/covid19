@@ -8,4 +8,4 @@ handler.setFormatter(formatter)
 logger.addHandler(handler)
 logger.setLevel(logging.DEBUG)
 
-__version__ = '0.1.0'
+__version__ = '0.1.1'

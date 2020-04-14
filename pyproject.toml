@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "covid19"
-version = "0.1.0"
+version = "0.1.1"
 description = "Covid19 Data Analysis"
 authors = ["Eric John <me@ericjohn.in>"]
 
@@ -10,6 +10,7 @@ matplotlib = "^3.2"
 aiohttp = "^3.6"
 pandas = "^1.0"
 flask = "^1.1"
+python-dotenv = "^0.12.0"
 
 
 [tool.poetry.dev-dependencies]

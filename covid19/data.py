@@ -8,30 +8,30 @@ import pandas as pd
 
 from covid19 import logger as log
 
-api_key = environ.get("DARKSKY_KEY", None)
-
 
 class CovidData:
-    def __init__(self, cache_path=__file__):
-        self.cache_path = Path(cache_path).parent
+    def __init__(self, cache_path=Path(__file__).parent):
+        self.api_key = environ.get("DARKSKY_KEY", None)
+        log.debug(f"Darksky api key: {self.api_key}")
+        self.cache_path = cache_path
         self.is_diff = True
 
     @staticmethod
     async def _get_forecast_response(url: str, session: aiohttp.ClientSession, row: pd.Series) -> pd.Series:
         async with session.get(url) as resp:
             json = await resp.json()
+            log.debug(f"Processing json response {json}")
             json = json['currently']
             json['Lat'] = row['Lat']
             json['Long'] = row['Long']
             json['Date'] = row['Date']
             return pd.Series(json)
 
-    @staticmethod
-    async def _forecast_url(row: pd.Series) -> str:
+    async def _forecast_url(self, row: pd.Series) -> str:
         current_time = datetime.datetime.strptime(row['Date'] + 'T12:00:00',
                                                   '%Y-%m-%dT%H:%M:%S')
         return 'https://api.darksky.net/forecast/%s/%s,%s,%s' \
-               '?units=%s&lang=%s' % (api_key, row['Lat'], row['Long'],
+               '?units=%s&lang=%s' % (self.api_key, row['Lat'], row['Long'],
                                       current_time.replace(microsecond=0).isoformat(),
                                       "auto", "en")
 
@@ -49,7 +49,7 @@ class CovidData:
         return weather
 
     async def _get_weather(self, covid_data: pd.DataFrame) -> pd.DataFrame:
-        if not api_key:
+        if not self.api_key:
             return pd.DataFrame()
         pickle_file = self.cache_path / "weather.pkl"
         if pickle_file.exists():
@@ -89,4 +89,3 @@ class CovidData:
             return covid_weather_data
         else:
             return covid_data
-
